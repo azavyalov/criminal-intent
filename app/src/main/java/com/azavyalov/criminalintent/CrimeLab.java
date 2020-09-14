@@ -3,23 +3,25 @@ package com.azavyalov.criminalintent;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
 public class CrimeLab {
 
     private static CrimeLab sCrimeLab;
-    private List<Crime> mCrimes;
+    private HashMap<UUID, Crime> mCrimes;
 
     private CrimeLab(Context context) {
-        mCrimes = new ArrayList<>();
+        mCrimes = new LinkedHashMap<>();
 
         // Temporary testing objects
         for (int i = 0; i < 100; i++) {
             Crime crime = new Crime();
             crime.setTitle("Crime #" + i);
             crime.setSolved(i % 2 == 0);
-            mCrimes.add(crime);
+            mCrimes.put(crime.getId(), crime);
         }
     }
 
@@ -31,15 +33,10 @@ public class CrimeLab {
     }
 
     public List<Crime> getCrimes() {
-        return mCrimes;
+        return new ArrayList<>(mCrimes.values());
     }
 
     public Crime getCrime(UUID id) {
-        for (Crime crime : mCrimes) {
-            if (crime.getId().equals(id)) {
-                return crime;
-            }
-        }
-        return null;
+        return mCrimes.get(id);
     }
 }
