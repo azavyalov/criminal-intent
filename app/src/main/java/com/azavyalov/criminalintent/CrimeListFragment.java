@@ -16,7 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.azavyalov.criminalintent.util.DateUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CrimeListFragment extends Fragment {
 
@@ -104,7 +107,9 @@ public class CrimeListFragment extends Fragment {
         public void bind(Crime crime) {
             mCrime = crime;
             mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(DateUtils.parseDate(mCrime.getDate()));
+            DateFormat dateFormat = new SimpleDateFormat(CrimeFragment.DATE_FORMAT, Locale.getDefault());
+            DateFormat timeFormat = new SimpleDateFormat(CrimeFragment.TIME_FORMAT, Locale.getDefault());
+            mDateTextView.setText(dateFormat.format(mCrime.getDate()) + " " + timeFormat.format(mCrime.getTime()));
             mSolvedImageView.setVisibility(mCrime.isSolved() ? View.VISIBLE : View.GONE);
         }
 

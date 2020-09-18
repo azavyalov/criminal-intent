@@ -8,7 +8,7 @@ import java.util.Locale;
 public class DateUtils {
 
     public static String parseDate(Date date) {
-        DateFormat df = new SimpleDateFormat("EEEE, MMM d, yyyy", Locale.US);
+        DateFormat df = new SimpleDateFormat("EEEE, MMM d, yyyy", Locale.getDefault());
         return df.format(date);
     }
 }
