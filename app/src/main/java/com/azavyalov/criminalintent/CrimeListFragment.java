@@ -23,12 +23,16 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 public class CrimeListFragment extends Fragment {
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private int adapterPosition;
     private boolean mSubtitleVisible;
+    private TextView mEmptyTextView;
 
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
@@ -44,6 +48,7 @@ public class CrimeListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
+        mEmptyTextView = view.findViewById(R.id.empty_text_view);
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -103,6 +108,9 @@ public class CrimeListFragment extends Fragment {
     private void updateUi() {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
+
+        setVisibility(crimes);
+
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
@@ -112,10 +120,16 @@ public class CrimeListFragment extends Fragment {
         updateSubtitle();
     }
 
+    private void setVisibility(List<Crime> crimes) {
+        mEmptyTextView.setVisibility(crimes.isEmpty() ? VISIBLE : GONE);
+        mCrimeRecyclerView.setVisibility(crimes.isEmpty() ? GONE : VISIBLE);
+    }
+
     private void updateSubtitle() {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
-        int crimeCount = crimeLab.getCrimes().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        int crimeSize = crimeLab.getCrimes().size();
+        String subtitle = getResources()
+                .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
 
         if (!mSubtitleVisible) {
             subtitle = null;
@@ -178,7 +192,7 @@ public class CrimeListFragment extends Fragment {
             DateFormat dateFormat = new SimpleDateFormat(CrimeFragment.DATE_FORMAT, Locale.getDefault());
             DateFormat timeFormat = new SimpleDateFormat(CrimeFragment.TIME_FORMAT, Locale.getDefault());
             mDateTextView.setText(dateFormat.format(mCrime.getDate()) + " " + timeFormat.format(mCrime.getTime()));
-            mSolvedImageView.setVisibility(mCrime.isSolved() ? View.VISIBLE : View.GONE);
+            mSolvedImageView.setVisibility(mCrime.isSolved() ? VISIBLE : GONE);
         }
 
         @Override
