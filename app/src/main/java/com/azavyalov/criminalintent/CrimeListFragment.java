@@ -115,7 +115,8 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
-            mAdapter.notifyItemChanged(adapterPosition);
+            mAdapter.setCrimes(crimes);
+            mAdapter.notifyDataSetChanged();
         }
         updateSubtitle();
     }
@@ -144,6 +145,10 @@ public class CrimeListFragment extends Fragment {
         private List<Crime> mCrimes;
 
         public CrimeAdapter(List<Crime> mCrimes) {
+            this.mCrimes = mCrimes;
+        }
+
+        public void setCrimes(List<Crime> mCrimes) {
             this.mCrimes = mCrimes;
         }
 
@@ -190,8 +195,7 @@ public class CrimeListFragment extends Fragment {
             mCrime = crime;
             mTitleTextView.setText(mCrime.getTitle());
             DateFormat dateFormat = new SimpleDateFormat(CrimeFragment.DATE_FORMAT, Locale.getDefault());
-            DateFormat timeFormat = new SimpleDateFormat(CrimeFragment.TIME_FORMAT, Locale.getDefault());
-            mDateTextView.setText(dateFormat.format(mCrime.getDate()) + " " + timeFormat.format(mCrime.getTime()));
+            mDateTextView.setText(dateFormat.format(mCrime.getDate()));
             mSolvedImageView.setVisibility(mCrime.isSolved() ? VISIBLE : GONE);
         }
 
