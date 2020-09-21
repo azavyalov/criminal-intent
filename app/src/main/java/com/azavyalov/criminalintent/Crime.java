@@ -8,14 +8,15 @@ public class Crime {
     private UUID mId;
     private String mTitle;
     private Date mDate;
-    private Date mTime;
     private boolean mSolved;
-    private boolean mRequiresPolice;
 
     public Crime() {
-        this.mId = UUID.randomUUID();
-        this.mDate = new Date();
-        this.mTime = new Date();
+        this(UUID.randomUUID());
+    }
+
+    public Crime(UUID id) {
+        mId = id;
+        mDate = new Date();
     }
 
     public UUID getId() {
@@ -36,14 +37,6 @@ public class Crime {
 
     public void setDate(Date mDate) {
         this.mDate = mDate;
-    }
-
-    public Date getTime() {
-        return mTime;
-    }
-
-    public void setTime(Date mTime) {
-        this.mTime = mTime;
     }
 
     public boolean isSolved() {
