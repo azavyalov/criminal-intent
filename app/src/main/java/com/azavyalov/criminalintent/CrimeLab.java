@@ -5,11 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.core.content.FileProvider;
+
 import com.azavyalov.criminalintent.database.CrimeBaseHelper;
 import com.azavyalov.criminalintent.database.CrimeCursorWrapper;
 import com.azavyalov.criminalintent.database.CrimeDbSchema.CrimeTable;
 import com.azavyalov.criminalintent.database.CrimeDbSchema.CrimeTable.Cols;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -118,5 +121,10 @@ public class CrimeLab {
         values.put(SOLVED, crime.isSolved() ? 1 : 0);
         values.put(SUSPECT, crime.getSuspect());
         return values;
+    }
+
+    public File getPhotoFile(Crime crime) {
+        File filesDir = mContext.getFilesDir();
+        return new File(filesDir, crime.getPhotoFilename());
     }
 }
