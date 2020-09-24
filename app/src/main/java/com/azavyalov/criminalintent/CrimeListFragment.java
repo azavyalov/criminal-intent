@@ -1,6 +1,6 @@
 package com.azavyalov.criminalintent;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,8 +34,22 @@ public class CrimeListFragment extends Fragment {
     private int adapterPosition;
     private boolean mSubtitleVisible;
     private TextView mEmptyTextView;
+    private Callbacks mCallbacks;
 
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
+
+    /**
+     * Обязательный интерфейс для активности-хоста.
+     */
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,8 +101,8 @@ public class CrimeListFragment extends Fragment {
             case R.id.new_crime:
                 Crime crime = new Crime();
                 CrimeLab.getInstance(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+                updateUi();
+                mCallbacks.onCrimeSelected(crime);
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -105,7 +120,13 @@ public class CrimeListFragment extends Fragment {
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
     }
 
-    private void updateUi() {
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    public void updateUi() {
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -114,6 +135,7 @@ public class CrimeListFragment extends Fragment {
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
+            initItemTouchHelper();
         } else {
             mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
@@ -138,6 +160,26 @@ public class CrimeListFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.getSupportActionBar().setSubtitle(subtitle);
+    }
+
+    private void initItemTouchHelper() {
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
+                0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                mAdapter.swipeToDelete(viewHolder.getAdapterPosition());
+                updateUi();
+            }
+
+        };
+        new ItemTouchHelper(callback).attachToRecyclerView(mCrimeRecyclerView);
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
@@ -174,6 +216,13 @@ public class CrimeListFragment extends Fragment {
         public int getItemViewType(int position) {
             return super.getItemViewType(position);
         }
+
+        public void swipeToDelete(int position) {
+            CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+            crimeLab.deleteCrime(mCrimes.get(position));
+            mAdapter.notifyItemRemoved(position);
+            mAdapter.notifyItemRangeChanged(position, crimeLab.getCrimes().size());
+        }
     }
 
     public class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -202,8 +251,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View view) {
             adapterPosition = getAdapterPosition();
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
-            startActivity(intent);
+            mCallbacks.onCrimeSelected(mCrime);
         }
     }
 }
