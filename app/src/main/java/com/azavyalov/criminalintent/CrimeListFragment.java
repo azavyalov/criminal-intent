@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -134,6 +135,7 @@ public class CrimeListFragment extends Fragment {
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
+            initItemTouchHelper();
         } else {
             mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
@@ -158,6 +160,26 @@ public class CrimeListFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.getSupportActionBar().setSubtitle(subtitle);
+    }
+
+    private void initItemTouchHelper() {
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
+                0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                mAdapter.swipeToDelete(viewHolder.getAdapterPosition());
+                updateUi();
+            }
+
+        };
+        new ItemTouchHelper(callback).attachToRecyclerView(mCrimeRecyclerView);
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
@@ -193,6 +215,13 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemViewType(int position) {
             return super.getItemViewType(position);
+        }
+
+        public void swipeToDelete(int position) {
+            CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+            crimeLab.deleteCrime(mCrimes.get(position));
+            mAdapter.notifyItemRemoved(position);
+            mAdapter.notifyItemRangeChanged(position, crimeLab.getCrimes().size());
         }
     }
 
