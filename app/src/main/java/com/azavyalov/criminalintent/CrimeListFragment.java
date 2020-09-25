@@ -244,7 +244,8 @@ public class CrimeListFragment extends Fragment {
         public void bind(Crime crime) {
             mCrime = crime;
             mTitleTextView.setText(mCrime.getTitle());
-            DateFormat dateFormat = new SimpleDateFormat(CrimeFragment.DATE_FORMAT, Locale.getDefault());
+            String formatStr = getResources().getString(R.string.date_format);
+            DateFormat dateFormat = new SimpleDateFormat(formatStr, Locale.getDefault());
             mDateTextView.setText(dateFormat.format(mCrime.getDate()));
             mSolvedImageView.setVisibility(mCrime.isSolved() ? VISIBLE : GONE);
         }
