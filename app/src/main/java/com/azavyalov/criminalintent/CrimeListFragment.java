@@ -135,6 +135,7 @@ public class CrimeListFragment extends Fragment {
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
+            // Challenge 17
             initItemTouchHelper();
         } else {
             mAdapter.setCrimes(crimes);
