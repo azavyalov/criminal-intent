@@ -62,7 +62,7 @@ public class CrimePagerActivity extends AppCompatActivity implements CrimeFragme
             }
         }
 
-        // Challenge
+        // Challenge 11.2
         prepareFirstPageButton();
         prepareLastPageButton();
 

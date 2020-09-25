@@ -31,7 +31,6 @@ public class CrimeListFragment extends Fragment {
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
-    private int adapterPosition;
     private boolean mSubtitleVisible;
     private TextView mEmptyTextView;
     private Callbacks mCallbacks;
@@ -252,7 +251,6 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            adapterPosition = getAdapterPosition();
             mCallbacks.onCrimeSelected(mCrime);
         }
     }
